@@ -14,6 +14,7 @@ require 'yaml'
 require 'rubygems'
 require 'bundler/setup'
 require 'grackle'
+require 'nokogiri'
 
 require 'credentials.rb'
 
@@ -71,15 +72,20 @@ if body then
   rss.items.each do |item|
     if REGEXP_HANIHANI =~ item.dc_creator then
       # eg: http://yutori7.2ch.net/test/read.cgi/news4plus/1259175497/
-      uri = URI.parse(item.link)
+
+      doc = Nokogiri::HTML(item.description)
+      uri = URI.parse(doc.xpath("//a/@href").first)
       server = uri.host.split(/[.]/).first
       _, _, _, board, thread = *uri.path.split(/\//)
+      next unless (board && thread)
       stmt_check.execute(board, thread)
       row = stmt_check.fetch
       if row then
         id = row[0]
+        printf("UPDATE: %s  http://%s.2ch.net/test/read.cgi/%s/%d/\n", item.title.to_s, server, board, thread)
         stmt_update.execute(id)
       else
+        printf("INSERT: %s  http://%s.2ch.net/test/read.cgi/%s/%d/\n", item.title.to_s, server, board, thread)
         stmt_insert.execute(server, board, thread,
                             item.dc_date.strftime("%Y-%m-%d %H:%M:%S"),
                             item.dc_creator.to_s, item.title.to_s)
