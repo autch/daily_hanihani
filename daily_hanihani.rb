@@ -43,14 +43,7 @@ def shorten_by_bitly(long_url)
 end
 
 def post_to_twitter(grackle, title, url)
-  short_url = shorten_by_bitly(url)
-  if (short_url == nil) ||
-      !short_url.is_a?(String) ||
-      (short_url.length == 0) then
-    short_url = url
-  end
-
-  status = sprintf('%s %s', title, short_url)
+  status = sprintf('%s %s', title, url)
   grackle.statuses.update! :status => status
 end
 
@@ -62,9 +55,8 @@ stmt_check = mysql.prepare(SQL_CHECK)
 stmt_insert = mysql.prepare(SQL_INSERT)
 stmt_update = mysql.prepare(SQL_UPDATE)
 
-Grackle::Transport.ca_cert_file = File.join(File.dirname(__FILE__),
-                                            "cacert.pem")
-grackle = Grackle::Client.new(:auth => GRACKLE_OAUTH)
+Grackle::Transport.ca_cert_file = File.join(File.dirname(__FILE__), "cacert.pem")
+grackle = Grackle::Client.new(:ssl => true, :auth => GRACKLE_OAUTH)
 
 body = HTTPCache.get(URL)
 if body then
