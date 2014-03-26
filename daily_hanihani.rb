@@ -55,7 +55,7 @@ stmt_check = mysql.prepare(SQL_CHECK)
 stmt_insert = mysql.prepare(SQL_INSERT)
 stmt_update = mysql.prepare(SQL_UPDATE)
 
-Grackle::Transport.ca_cert_file = File.join(File.dirname(__FILE__), "cacert.pem")
+Grackle::Transport.ca_cert_file = "/etc/ssl/certs/ca-certificates.crt"
 grackle = Grackle::Client.new(:ssl => true, :auth => GRACKLE_OAUTH)
 
 body = HTTPCache.get(URL)
