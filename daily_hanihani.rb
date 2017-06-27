@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 # -*- encoding: utf-8; -*-
 
 $: << File.dirname(__FILE__)
@@ -6,13 +6,13 @@ $: << File.dirname(__FILE__)
 require 'rss'
 require 'net/http'
 require 'http_cache.rb'
-require 'mysql'
 require 'cgi'
 require 'uri'
 require 'yaml'
 
 require 'rubygems'
 require 'bundler/setup'
+require 'mysql2'
 require 'grackle'
 require 'nokogiri'
 
@@ -47,7 +47,7 @@ def post_to_twitter(grackle, title, url)
   grackle.statuses.update! :status => status
 end
 
-mysql = Mysql.new(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_DB)
+mysql = Mysql2::Client.new(host: MYSQL_HOST, username: MYSQL_USER, password: MYSQL_PASS, database: MYSQL_DB)
 mysql.query("SET CHARACTER SET utf8")
 mysql.query("SET NAMES utf8")
 
@@ -70,11 +70,10 @@ if body then
       server = uri.host.split(/[.]/).first
       _, _, _, board, thread = *uri.path.split(/\//)
       next unless (board && thread)
-      stmt_check.execute(board, thread)
-      row = stmt_check.fetch
-      if row then
-        id = row[0]
-        printf("UPDATE: %s  http://%s.2ch.net/test/read.cgi/%s/%d/\n", item.title.to_s, server, board, thread)
+      row = stmt_check.execute(board, thread)
+      if row.count > 0 then
+        id = row.to_a.first["id"]
+        printf("UPDATE[%d]: %s  http://%s.2ch.net/test/read.cgi/%s/%d/\n", id, item.title.to_s, server, board, thread)
         stmt_update.execute(id)
       else
         printf("INSERT: %s  http://%s.2ch.net/test/read.cgi/%s/%d/\n", item.title.to_s, server, board, thread)
