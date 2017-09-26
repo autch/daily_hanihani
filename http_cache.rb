@@ -1,6 +1,6 @@
 
 require 'uri'
-require 'net/http'
+require 'net/https'
 require 'digest/md5'
 require 'time'
 require 'zlib'
@@ -50,9 +50,9 @@ private
   end
 
   def http_start
-    Net::HTTP.start(@uri.host, @uri.port){|http|
-      yield(http)
-    }
+    http = Net::HTTP.new(@uri.host, @uri.port)
+    http.use_ssl = true if @uri.scheme == 'https'
+    http.start{|http| yield(http) }
   end
   
   def lm_time(r)

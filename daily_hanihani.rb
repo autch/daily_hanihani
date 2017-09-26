@@ -18,7 +18,7 @@ require 'nokogiri'
 
 require 'credentials.rb'
 
-URL = 'http://www.2nn.jp/rss/news4plus.rdf'
+URL = 'https://www.2nn.jp/rss/news4plus.rdf'
 REGEXP_HANIHANI = /(ちょーはにはにちゃんｗ|HONEY MILK(　)?)φ ★/
 
 COLUMNS = %w(id server board thread date creator title last_checked)
@@ -32,15 +32,6 @@ SQL_INSERT = sprintf("INSERT INTO daily_hanihani (%s) " +
                      COLUMNS.join(","))
 SQL_UPDATE = "UPDATE daily_hanihani SET last_checked = NOW() " +
   "WHERE id = ? LIMIT 1"
-
-def shorten_by_bitly(long_url)
-  query = sprintf("version=2.0.1&longUrl=%s&login=%s&apiKey=%s",
-                  CGI.escape(long_url), CGI.escape(BITLY_USERNAME), 
-                  CGI.escape(BITLY_APIKEY))
-  body = Net::HTTP.get("api.bit.ly", "/shorten?#{query}")
-  yaml = YAML.load(body)
-  yaml["results"][long_url]["shortUrl"]
-end
 
 def post_to_twitter(grackle, title, url)
   status = sprintf('%s %s', title, url)
