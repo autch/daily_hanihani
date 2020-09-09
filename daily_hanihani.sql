@@ -1,6 +1,7 @@
 
 CREATE TABLE daily_hanihani (
        id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+       server CHAR(16) NOT NULL,
        board CHAR(16) NOT NULL,
        thread INT UNSIGNED NOT NULL,
        date DATETIME NOT NULL,
@@ -8,5 +9,5 @@ CREATE TABLE daily_hanihani (
        title VARCHAR(255) NOT NULL,
        last_checked DATETIME NOT NULL,
 
-       UNIQUE(board, thread)
+       UNIQUE(server, board, thread)
 ) DEFAULT CHARACTER SET utf8, AUTO_INCREMENT = 1;

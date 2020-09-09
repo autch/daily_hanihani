@@ -19,7 +19,7 @@ require 'nokogiri'
 require 'credentials.rb'
 
 URL = 'https://www.2nn.jp/rss/news4plus.rdf'
-REGEXP_HANIHANI = /(ちょーはにはにちゃんｗ|HONEY MILK(　)?)φ ★/
+REGEXP_HANIHANI = /(ちょーはにはにちゃんｗ|HONEY MILK(　)?|ハニィみるく（17歳）)φ? ★/
 
 COLUMNS = %w(id server board thread date creator title last_checked)
 
